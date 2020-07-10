@@ -65,7 +65,7 @@ class SIR:
 			frameon=False, loc='upper center', ncol=3)
 
 		plt.title(
-			'SIR simulation for $\\beta$={}, $\\gamma$={} during {} days'.format(self.beta, self.gamma, days))
+			'SIR model for $\\beta$={}, $\\gamma$={}, {} days'.format(self.beta, self.gamma, days))
 		plt.savefig(imgfile)
 		
 
