@@ -10,7 +10,7 @@ class SIR:
 		self.I0 = I0
 		self.R0 = R0
 
-	# Euler method for solving ODE 
+	# Euler method for ODE 
 	def euler(v0, F, hmax, step=.1):
 		h = 0
 		u = v0
@@ -61,13 +61,13 @@ class SIR:
 		plt.xlabel('day')
 		plt.ylabel('% population')
 
-		plt.legend(['Susceptible', 'Infected', 'Recovered'],
-			frameon=False, loc='upper center', ncol=3)
+		plt.legend(['Susceptible', 'Infected', 'Recovered'], frameon=False, loc='upper center', ncol=3)
+		plt.title('SIR model for $\\beta$={}, $\\gamma$={}, {} days'.format(self.beta, self.gamma, days))
 
-		plt.title(
-			'SIR model for $\\beta$={}, $\\gamma$={}, {} days'.format(self.beta, self.gamma, days))
 		plt.savefig(imgfile)
 		
 
-m = SIR(beta=.001, gamma=.001, S0=5, I0=1, R0=0)
-m.plot(days=30)
+# Example
+if __name__ == '__main__':
+	m = SIR(beta=.001, gamma=.001, S0=5, I0=1, R0=0)
+	m.plot(days=30)
