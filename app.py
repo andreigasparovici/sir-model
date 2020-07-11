@@ -69,12 +69,12 @@ class SIRD:
 		plt.title('SIRD model')
 
 		if filename:
-			anim.save('anim.gif', writer='imagemagick', fps=60)
+			anim.save(filename, writer='imagemagick', fps=60)
 		else:
 			plt.show()
 		
 
 # Example
 if __name__ == '__main__':
-	m = SIRD(beta=.6, gamma=.01, mu=.4, S0=500, I0=100, R0=0)
+	m = SIRD(beta=.1, gamma=.01, mu=.001, S0=500, I0=100, R0=40)
 	m.plot(days=7, filename='anim.gif')
