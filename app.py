@@ -1,73 +1,80 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-class SIR:
-	def __init__(self, beta, gamma, S0, I0, R0):
+class SIRD:
+	def __init__(self, beta, gamma, mu, S0, I0, R0):
 		self.beta = beta
 		self.gamma = gamma
+		self.mu = mu
 
-		self.S0 = S0
-		self.I0 = I0
-		self.R0 = R0
+		self.v0 = np.array([S0, I0, R0, 0])
+		self.N = sum(self.v0)
 
-	# Euler method for ODE 
-	def euler(v0, F, hmax, step=.1):
-		h = 0
-		u = v0
+	# SIRD model ODE system
+	def F(self, v):
+		S, I, R, D = v 
+		return np.array([
+				-self.beta * I * S / self.N,
+				self.beta * I * S / self.N - self.gamma * I - self.mu * I,
+				self.gamma * I,
+				self.mu * I,
+		])
 
-		while h <= hmax:
-			v = u + h * F(u)
-			u = v
+	def plot(self, days, filename=None):
+		self.v = self.v0
+		self.u = self.v0
 
-			yield h, v
+		X, Y = [], []
 
-			h += step
+		fig, ax = plt.subplots()
+		ax.set_xlim(0, days)
+		ax.set_ylim(0, self.N)
+		
+		S_line, = ax.plot(0, 0, color='#4FA1E4')
+		I_line, = ax.plot(0, 0, color='#FE2020')
+		R_line, = ax.plot(0, 0, color='#40D752')
+		D_line, = ax.plot(0, 0, color='#000000')
 
-	def plot(self, days=7, imgfile='sir.png'):
-		v0 = np.array([self.S0, self.I0, self.R0])
+		def euler(h):
+			self.v = self.u + h * self.F(self.u)
+			self.u = self.v
 
-		# Population size
-		N = sum(v0)
-
-		# Kermack-McKendrick model ODE system
-		def F(v):
-			S, I, R = v 
-			return np.array([
-					-self.beta * S * I,
-					self.beta * S * I - self.gamma * I,
-					self.gamma * I
-			])
-
-		Sy, Iy, Ry, X = [], [], [], []
-
-		for h, v in SIR.euler(v0, F, hmax=days):
-			S, I, R = v
+			S, I, R, D = self.v
 
 			X.append(h)
+			Y.append((S, I, R, D))
+			Yt = np.transpose(Y)
 
-			Iy.append(I)
-			Sy.append(S)
-			Ry.append(R)
+			S_line.set_xdata(X)
+			S_line.set_ydata(Yt[0])
 
-		# Percentage normalization
-		def normalize(Y):
-			return [y / N * 100 for y in Y]
+			I_line.set_xdata(X)
+			I_line.set_ydata(Yt[1])
 
-		# Plot data
-		plt.plot(X, normalize(Sy), color='gray')
-		plt.plot(X, normalize(Iy), color='red')
-		plt.plot(X, normalize(Ry), color='green')
+			R_line.set_xdata(X)
+			R_line.set_ydata(Yt[2])
 
-		plt.xlabel('day')
-		plt.ylabel('% population')
+			D_line.set_xdata(X)
+			D_line.set_ydata(Yt[3])
 
-		plt.legend(['Susceptible', 'Infected', 'Recovered'], frameon=False, loc='upper center', ncol=3)
-		plt.title('SIR model for $\\beta$={}, $\\gamma$={}, {} days'.format(self.beta, self.gamma, days))
+			return S_line, I_line, R_line, D_line,
 
-		plt.savefig(imgfile)
+		anim = FuncAnimation(fig, func=euler, frames=np.arange(0, days, .1), interval=100, repeat=False)
+
+		plt.xlabel('Day')
+		plt.ylabel('% Population')
+
+		plt.legend(['Susceptible', 'Infected', 'Recovered', 'Deceased'], frameon=False, loc='upper center', ncol=4)
+		plt.title('SIRD model')
+
+		if filename:
+			anim.save('anim.gif', writer='imagemagick', fps=60)
+		else:
+			plt.show()
 		
 
 # Example
 if __name__ == '__main__':
-	m = SIR(beta=.001, gamma=.001, S0=5, I0=1, R0=0)
-	m.plot(days=30)
+	m = SIRD(beta=.6, gamma=.01, mu=.4, S0=500, I0=100, R0=0)
+	m.plot(days=7, filename='anim.gif')
