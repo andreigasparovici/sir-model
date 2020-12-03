@@ -27,3 +27,7 @@ The system is solved numerically using Euler's method.
 ## Visualization example
 
 ![](anim.gif)
+
+## Article
+
+[Using Mathematical Modeling to Simulate an Epidemic](https://medium.com/towards-artificial-intelligence/using-mathematical-modeling-to-simulate-an-epidemic-2ceaf0c8286d)
